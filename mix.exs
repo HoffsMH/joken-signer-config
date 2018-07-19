@@ -21,6 +21,7 @@ defmodule Joken.Signer.Config.MixProject do
   # Run "mix help deps" to learn about dependencies.
   defp deps do
     [
+      {:dialyxir, "~> 1.0.0-rc.2", only: [:dev], runtime: false},
       {:joken, "~> 1.5.0"},
       {:poison, "~> 3.1.0"},
       {:ex_doc, ">= 0.18.4", only: :dev}
