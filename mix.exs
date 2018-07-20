@@ -1,6 +1,8 @@
 defmodule Joken.Signer.Config.MixProject do
   use Mix.Project
 
+  @version "0.1.0"
+
   def description do
     "A simple configuration plugin for Joken Signers"
   end
@@ -8,12 +10,13 @@ defmodule Joken.Signer.Config.MixProject do
   def project do
     [
       app: :joken_signer_config,
-      version: "0.1.0",
+      version: @version,
       elixir: "~> 1.6",
       description: description(),
       start_permanent: Mix.env() == :prod,
-      deps: deps()
-      pakage: package()
+      deps: deps(),
+      package: package(),
+      docs: docs_config()
     ]
   end
 
@@ -41,5 +44,12 @@ defmodule Joken.Signer.Config.MixProject do
       licenses: ["MIT"],
       links: %{"GitHub" => "https://github.com/HoffsMH/joken-signer-config"}
     ]
+  end
+
+  defp docs_config do
+    [extras: ["README.md": [title: "Overview", path: "overview"]],
+     main: "overview",
+     source_ref: "v#{@version}",
+     source_url: "https://github.com/HoffsMH/joken-signer-config"]
   end
 end
