@@ -10,6 +10,7 @@ defmodule Joken.Signer.Config.MixProject do
   def project do
     [
       app: :joken_signer_config,
+      name: "Joken Signer Config",
       version: @version,
       elixir: "~> 1.6",
       description: description(),
@@ -48,8 +49,8 @@ defmodule Joken.Signer.Config.MixProject do
 
   defp docs_config do
     [
-      extras: ["README.md": [title: "Overview", path: "overview"]],
-      main: "overview",
+      extras: ["README.md": [title: "Overview"]],
+      main: "readme",
       source_ref: "v#{@version}",
       source_url: "https://github.com/HoffsMH/joken-signer-config"
     ]
