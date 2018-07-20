@@ -1,7 +1,20 @@
 defmodule Joken.Signer.Config do
-  import Joken
+  @moduledoc """
+    Joken Signer Config is used to derive an appropriate `%Joken.Signer` from a jwt token
+    based on the criteria of one or many `%Joken.Signer.Config`s within a list
+  """
+
+  alias Joken.Signer
 
   @type token :: Joken.Token.t()
+  @type claims :: %{}
+  @type headers :: %{}
+
+  @type t :: %__MODULE__{
+          claims: claims,
+          headers: headers,
+          signer: (... -> Joken.Signer.t())
+        }
 
   defstruct [
     :claims,
@@ -9,34 +22,29 @@ defmodule Joken.Signer.Config do
     :signer
   ]
 
-
-  
   @doc """
-      iex> IO.puts "hi"
-      "asdf"
+  Combines `&peek/1` and `&peek_header/1` to give a map
+  that includes both headers and claims from the token
+
+  ### Examples
+
+      iex> my_token = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJuYW1lIjoiSm9obiBEb2UifQ.DjwRE2jZhren2Wt37t5hlVru6Myq4AhpGLiiefF69u8"
+      iex> import Joken.Signer.Config
+      iex> peek_headers_and_claims(my_token)
+      %{
+        claims: %{"name" => "John Doe"},
+        headers: %{"alg" => "HS256", "typ" => "JWT"}
+      }
   """
-  @spec peek_headers_and_claims(binary) :: String.t
+  @spec peek_headers_and_claims(binary) :: map
   def peek_headers_and_claims(raw_jwt) when is_binary(raw_jwt),
-    do: peek_headers_and_claims(token(raw_jwt))
+    do: peek_headers_and_claims(Joken.token(raw_jwt))
 
   @spec peek_headers_and_claims(token) :: map
   def peek_headers_and_claims(jwt) do
     %{
-      headers: peek_header(jwt),
-      claims: peek(jwt)
+      headers: Signer.peek_header(jwt),
+      claims: Signer.peek(jwt)
     }
-  end
-
-  @spec thing(token) :: map
-  def thing(haha) do
-    "hs"
-  end
-
-  @doc """
-  Combines peek and peek headers to give a merged map of all
-  claim and header values in a jwt token
-  """
-  def sample_jwt() do
-    "eyJhbGciOiJFUzUxMiJ9.eyJ1c2VyIjp7ImVtcGxveWVlX2lkIjo3MzQyLCJlbXBsb3llZV9udW1iZXIiOiI3OTYxIiwiZW1haWwiOiJtYXR0aGV3LmhlY2tlckBibHVlYXByb24uY29tIiwiZmFjaWxpdHlfaWQiOm51bGwsInJvbGVzIjpbIkNvcnBvcmF0ZSBNYW5hZ2VyIl19LCJpYXQiOjE1MzE5NDY5MTksImlzcyI6IldNUyIsImF1ZCI6InN0YWdpbmciLCJleHAiOjE1MzE5NTA1MTksImp0aSI6IjI5NTIxOThjLTBiZmYtNGE0YS1hZGVlLTBjNDAwMjJhMGQwNSJ9.AdW8qHj_sh0xb9LUbq6WeBtScKnp4udtEFDmqAQzuABKRXAHgpukn8RMnSO67yTnXJ9iRT_1SQUPvWzoifMRCd2NAZf0uFm7oCvVoVdDmOrzOQ4US7q6fuGDW31s3UNHY8twI3gS7YKDea87y_KT-dM_1Gi5YOehJiiI3R-M_0KSt2Et"
   end
 end
