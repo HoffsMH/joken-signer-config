@@ -47,9 +47,11 @@ defmodule Joken.Signer.Config.MixProject do
   end
 
   defp docs_config do
-    [extras: ["README.md": [title: "Overview", path: "overview"]],
-     main: "overview",
-     source_ref: "v#{@version}",
-     source_url: "https://github.com/HoffsMH/joken-signer-config"]
+    [
+      extras: ["README.md": [title: "Overview", path: "overview"]],
+      main: "overview",
+      source_ref: "v#{@version}",
+      source_url: "https://github.com/HoffsMH/joken-signer-config"
+    ]
   end
 end

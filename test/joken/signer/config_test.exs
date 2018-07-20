@@ -17,7 +17,7 @@ defmodule Joken.Signer.ConfigTest do
     assert peek_headers_and_claims(@valid_token) === expected
   end
 
-  test "peek_headers_and_claims when given an invalid" do
+  test "peek_headers_and_claims when given an invalid jwt token" do
     assert_raise ArgumentError, fn ->
       peek_headers_and_claims(@invalid_token)
     end
