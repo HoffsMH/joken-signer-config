@@ -1,7 +1,21 @@
 defmodule Joken.Signer.Config do
   @moduledoc """
-    Joken Signer Config is used to derive an appropriate `%Joken.Signer` from a jwt token
-    based on the criteria of one or many `%Joken.Signer.Config`s within a list
+  Joken Signer Config is used to derive an appropriate `%Joken.Signer` from a jwt token
+  based on the criteria of one or many `%Joken.Signer.Config`s within a list
+
+  ### How it works
+
+  Given a list of `%Joken.Signer.Config`s that look like this
+      [
+        %Joken.Signer.Config{
+          claims: %{ iss: "some_issuer" }
+          headers: %{ alg: hs256 },
+          signer: &Joken.h256/1
+        },
+        #...more Signer Configs
+      ]
+
+  and a jwt token with contents like this
   """
 
   alias Joken.Signer
@@ -21,6 +35,25 @@ defmodule Joken.Signer.Config do
     :headers,
     :signer
   ]
+
+  def find_config_by(config, jwt) do
+    config
+    |> Enum.find(&map_match(&1.claims, peek_headers_and_claims(jwt)))
+  end
+
+  def map_match(map1, map2) do
+    map1
+    |> Enum.all?(&value_match(&1, map2))
+  end
+
+  def value_match({key, value1}, map2) do
+    with value2 <- Map.get(map2, to_string(key)) do
+      get_value(value1, value2)
+    end
+  end
+
+  def get_value(value1, value2) when is_function(value1), do: value1.(value2)
+  def get_value(value1, value2), do: value1 === value2
 
   @doc """
   Combines `&peek/1` and `&peek_header/1` to give a map

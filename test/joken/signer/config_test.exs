@@ -7,6 +7,22 @@ defmodule Joken.Signer.ConfigTest do
 
   @valid_token "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJuYW1lIjoiSm9obiBEb2UifQ.DjwRE2jZhren2Wt37t5hlVru6Myq4AhpGLiiefF69u8"
   @invalid_token "invalid.token"
+  @valid_config [
+    %Joken.Signer.Config{
+      claims: %{name: "John Doe"},
+      headers: %{alg: "HS256"}
+    }
+  ]
+
+  test "do the thing" do
+    assert find_config_by(@valid_config, @valid_token) === "Hi"
+  end
+
+  test "get_value" do
+    assert get_value(1, 1) === true
+    assert get_value(&(&1 + 2), 1) === 3
+    assert get_value(&(&1 - 1), 5) === 4
+  end
 
   test "peek_headers_and_claims when given valid jwt token" do
     expected = %{
