@@ -28,13 +28,15 @@ defmodule Joken.Signer.Config do
   end
 
   def map_match(map1, map2) do
+    require IEx
+    IEx.pry
     map1
-    |> Enum.all?(&value_match(&1, map2))
+    |> Enum.all?(&value_match(&1, map2.claims))
   end
 
   def value_match({key, value1}, map2) do
     with value2 <- Map.get(map2, to_string(key)) do
-      get_value(value1, value2)
+      test_equality(value1, value2)
     end
   end
 
@@ -43,19 +45,21 @@ defmodule Joken.Signer.Config do
   to that function and returns the result otherwise returns
   whether or not the two values are equal
 
+  meant for testing equality in a custom way.
+
   ### Examples
-    iex> get_value(1, 1) 
+    iex> test_equality(1, 1) 
     true
-    iex> get_value(&(&1 == 1), 1) 
+    iex> test_equality(&(&1 == 1), 1) 
     true
-    iex> get_value(&(&1 - 1 === 4), 5) 
+    iex> test_equality(&(&1 - 1 === 4), 5) 
     true
-    iex> get_value(&(&1 - 2 === 4), 5) 
+    iex> test_equality(&(&1 - 2 === 4), 5) 
     false
       
   """
-  def get_value(value1, value2) when is_function(value1), do: value1.(value2)
-  def get_value(value1, value2), do: value1 === value2
+  def test_equality(value1, value2) when is_function(value1), do: value1.(value2)
+  def test_equality(value1, value2), do: value1 === value2
 
   @doc """
   Combines `&peek/1` and `&peek_header/1` to give a map
