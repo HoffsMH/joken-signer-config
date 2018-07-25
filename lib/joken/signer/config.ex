@@ -2,20 +2,6 @@ defmodule Joken.Signer.Config do
   @moduledoc """
   Joken Signer Config is used to derive an appropriate `%Joken.Signer` from a jwt token
   based on the criteria of one or many `%Joken.Signer.Config`s within a list
-
-  ### How it works
-
-  Given a list of `%Joken.Signer.Config`s that look like this
-      [
-        %Joken.Signer.Config{
-          claims: %{ iss: "some_issuer" }
-          headers: %{ alg: hs256 },
-          signer: &Joken.h256/1
-        },
-        #...more Signer Configs
-      ]
-
-  and a jwt token with contents like this
   """
 
   alias Joken.Signer
@@ -36,8 +22,8 @@ defmodule Joken.Signer.Config do
     :signer
   ]
 
-  def find_config_by(config, jwt) do
-    config
+  def find_config_by(config_list, jwt) do
+    config_list
     |> Enum.find(&map_match(&1.claims, peek_headers_and_claims(jwt)))
   end
 
@@ -52,6 +38,22 @@ defmodule Joken.Signer.Config do
     end
   end
 
+  @doc """
+  when first argument is a function hands the second argument
+  to that function and returns the result otherwise returns
+  whether or not the two values are equal
+
+  ### Examples
+    iex> get_value(1, 1) 
+    true
+    iex> get_value(&(&1 == 1), 1) 
+    true
+    iex> get_value(&(&1 - 1 === 4), 5) 
+    true
+    iex> get_value(&(&1 - 2 === 4), 5) 
+    false
+      
+  """
   def get_value(value1, value2) when is_function(value1), do: value1.(value2)
   def get_value(value1, value2), do: value1 === value2
 

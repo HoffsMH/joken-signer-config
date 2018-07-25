@@ -5,17 +5,24 @@ defmodule Joken.Signer.ConfigTest do
 
   doctest Joken.Signer.Config
 
-  @valid_token "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJuYW1lIjoiSm9obiBEb2UifQ.DjwRE2jZhren2Wt37t5hlVru6Myq4AhpGLiiefF69u8"
+  @valid_token "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiIxMjM0NTY3ODkwIiwibmFtZSI6IkpvaG4gRG9lIiwiaWF0IjoxNTE2MjM5MDIyfQ.HMwf4pIs-aI8UG5Rv2dKplZP4XKvwVT5moZGA08mogA"
   @invalid_token "invalid.token"
-  @valid_config [
-    %Joken.Signer.Config{
-      claims: %{name: "John Doe"},
-      headers: %{alg: "HS256"}
-    }
-  ]
+
+  def signer(_), do: Joken.hs256("my_secret")
+  def valid_config() do
+    [
+      %Joken.Signer.Config{
+        claims: %{name: "John Doe"},
+        headers: %{alg: "HS256"},
+        signer: &signer/1
+      }
+    ]
+  end
+
 
   test "do the thing" do
-    assert find_config_by(@valid_config, @valid_token) === "Hi"
+    # IO.inspect valid_config
+    IO.inspect find_config_by(valid_config, @valid_token)
   end
 
   test "get_value" do
