@@ -6,11 +6,13 @@ defmodule Joken.Signer.Config.Test do
   doctest Joken.Signer.Config
 
   @valid_token "eyJhbGciOiJIUzI1NiJ9.eyJpc3MiOiJzb21lX2lzc3VlciIsIm5hbWUiOiJKYW5lIERvZSJ9.fisuQaN9_e9wkeDlRBRAi0YhCPt4gSmTSa0IZq-wNj8"
+  @near_blank_token "eyJhbGciOiJIUzI1NiJ9.e30.2ROr1Q6Tyud-NtkBttmEUUMxoaKFIOuhBZwgl89Mk0U"
   @invalid_token "invalid.token"
+  @secret "my_secret"
 
-  def signer(_), do: Joken.hs256("my_secret")
+  def signer(_), do: Joken.hs256(@secret)
 
-  def valid_config() do
+  def valid_config_list() do
     [
       %Joken.Signer.Config{
         claims: %{iss: "some_issuer"},
@@ -21,8 +23,8 @@ defmodule Joken.Signer.Config.Test do
   end
 
   test "do the thing" do
-    # IO.inspect valid_config
-    assert (find_config_by(valid_config(), @valid_token)) === "hi"
+    first_config
+    assert (find_config_by(valid_config_list(), @valid_token)) === valid_config_list()
   end
 
   test "test_equality" do
@@ -40,6 +42,15 @@ defmodule Joken.Signer.Config.Test do
     }
 
     assert peek_headers_and_claims(@valid_token) === expected
+  end
+
+  test "peek_headers_and_claims when given a jwt token with no claims" do
+    expected = %{
+      claims: %{},
+      headers: %{"alg" => "HS256"}
+    }
+
+    assert peek_headers_and_claims(@near_blank_token) === expected
   end
 
   test "peek_headers_and_claims when given an invalid jwt token" do

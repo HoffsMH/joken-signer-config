@@ -4,9 +4,9 @@ Lightweight way to organize and choose Joken signer configuration based on the c
 
 ### What this solves
 
-The most common use case will probably be in letting your app know which secrets and algorithms to use for which issuers.
+The most common use case will probably be in letting your app know which secrets, public keys, and algorithms to use for certain issuers.
 
-Lets say you are building an app that needs to verify a number of jwt tokens from various issuers. Each issuer might need a different algorithm and secret. or maybe you are willing to accept a limited set of algorithms from a specific issuer that you might not be willing to do with another.
+Lets say you are building an app that needs to verify a number of jwt tokens from various issuers. Each issuer might need a different algorithm and secret. Or maybe you are willing to accept a limited set of algorithms from a specific issuer that you might not be willing to do with another.
 
 Perhaps certain types of claims require more stringent verification.
 

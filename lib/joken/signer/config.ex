@@ -28,8 +28,6 @@ defmodule Joken.Signer.Config do
   end
 
   def map_match(map1, map2) do
-    require IEx
-    IEx.pry
     map1
     |> Enum.all?(&value_match(&1, map2.claims))
   end
@@ -45,7 +43,8 @@ defmodule Joken.Signer.Config do
   to that function and returns the result otherwise returns
   whether or not the two values are equal
 
-  meant for testing equality in a custom way.
+  this function is meant for letting users of our api test for values
+  in a jwt token in a custom way.
 
   ### Examples
     iex> test_equality(1, 1) 
@@ -58,7 +57,7 @@ defmodule Joken.Signer.Config do
     false
       
   """
-  def test_equality(value1, value2) when is_function(value1), do: value1.(value2)
+  def test_equality(func, value2) when is_function(func), do: func.(value2)
   def test_equality(value1, value2), do: value1 === value2
 
   @doc """
