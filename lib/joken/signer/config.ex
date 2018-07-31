@@ -57,6 +57,7 @@ defmodule Joken.Signer.Config do
     false
       
   """
+  @spec test_equality(function | binary | number, binary | number) :: any
   def test_equality(func, value2) when is_function(func), do: func.(value2)
   def test_equality(value1, value2), do: value1 === value2
 

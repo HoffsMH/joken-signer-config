@@ -18,13 +18,23 @@ defmodule Joken.Signer.Config.Test do
         claims: %{iss: "some_issuer"},
         headers: %{alg: "HS256"},
         signer: &signer/1
+      },
+      %Joken.Signer.Config{
+        claims: %{iss: "some_other_issuer"},
+        headers: %{alg: "HS256"},
+        signer: &signer/1
       }
     ]
   end
 
-  test "do the thing" do
-    first_config
-    assert (find_config_by(valid_config_list(), @valid_token)) === valid_config_list()
+  test "find_config_by returns a config when given a matching token" do
+    with config_list <- valid_config_list(),
+         first_config <- Enum.at(config_list, 0),
+         second_config <- Enum.at(config_list, 1),
+         result <- find_config_by(config_list, @valid_token) do
+      assert result === first_config
+      assert result !== second_config
+    end
   end
 
   test "test_equality" do
