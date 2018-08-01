@@ -24,17 +24,71 @@ defmodule Joken.Signer.Config do
 
   def find_config_by(config_list, jwt) do
     config_list
-    |> Enum.find(&map_match(&1.claims, peek_headers_and_claims(jwt)))
+    |> Enum.find(&config_match?(&1, jwt))
   end
 
-  def map_match(map1, map2) do
+  def config_match?(%{headers: headers, claims: claims}, jwt) do
+    with %{
+           "headers" => jwt_headers,
+           "claims" => jwt_claims
+         } <- peek_headers_and_claims(jwt) do
+      map_match?(claims, jwt_claims) && map_match?(headers, jwt_headers)
+    end
+  end
+
+  @doc """
+  Lets you know if all of the key value pairs in map 1 are present in map 2, but
+  not that all the key value pairs  in map 2 are present in map 1
+
+  ### Examples
+    iex> map_match?(%{ "a" => "b" }, %{ "a" => "b", "c" => "d"})
+    true
+    iex> map_match?(%{ "a" => "a" }, %{ "a" => "b" })
+    false
+    iex> map_match?(%{ "b" => "a" }, %{ "a" => "b" })
+    false
+    iex> map_match?(%{ "b" => "a", "c" => "d" }, %{ "b" => "a" })
+    false
+    iex> my_match_fn = fn val -> val === "b" end
+    iex> map_match?(%{ "a" => my_match_fn }, %{ "a" => "b" })
+    true
+    iex> my_match_fn2 = fn val -> val === "a" end
+    iex> map_match?(%{ "a" => my_match_fn2 }, %{ "a" => "b" })
+    false
+    iex> my_match_fn3 = fn val -> val === "b" end
+    iex> map_match?(%{ "c" => my_match_fn3 }, %{ "a" => "b" })
+    false
+  """
+  def map_match?(map1, map2) do
     map1
-    |> Enum.all?(&value_match(&1, map2.claims))
+    |> Enum.all?(&value_match?(&1, map2))
   end
 
-  def value_match({key, value1}, map2) do
-    with value2 <- Map.get(map2, to_string(key)) do
-      test_equality(value1, value2)
+  @doc """
+  Runs test_equality/2 on a key value pair(tuple) in a given map
+
+  ### Examples
+    iex> test_map = %{
+    iex>  "b" => "some_other_value",
+    iex>  "a" => "my_value_to_test_for"
+    iex>  }
+    iex> value_match?({"a", "my_value_to_test_for"}, test_map)
+    true
+    iex> value_match?({"b", "my_value_to_test_for"}, test_map)
+    false
+    iex> value_match?({"a", "some_other_value"}, test_map)
+    false
+    iex> my_match_fn = fn val -> val === "my_value_to_test_for" end
+    iex> value_match?({"a", my_match_fn }, test_map)
+    true
+    iex> my_match_fn = fn val -> val === "some_other_value" end
+    iex> value_match?({"a", my_match_fn }, test_map)
+    false
+  """
+  @spec value_match?({binary, any}, map) :: boolean
+  def value_match?({key, test}, map) do
+    with value <- Map.get(map, to_string(key)) do
+      !!test_equality(test, value)
     end
   end
 
