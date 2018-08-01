@@ -10,6 +10,8 @@ defmodule Joken.Signer.Config do
   @type claims :: %{}
   @type headers :: %{}
   @type token_string :: String.t()
+  @type json_value :: binary | number
+  @type value_or_verifier :: json_value | function
 
   @type t :: %__MODULE__{
           claims: claims,
@@ -39,7 +41,16 @@ defmodule Joken.Signer.Config do
   @doc """
   Reports if a given config is a match for a given jwt token string
   """
-  @spec config_match?(%{}, %{}) :: boolean
+  @spec config_match?(
+          %{
+            headers: value_or_verifier,
+            claims: value_or_verifier
+          },
+          %{
+            headers: any,
+            claims: any
+          }
+        ) :: boolean
   def config_match?(config, jwt) do
     with %{
            claims: config_claims,
@@ -81,7 +92,7 @@ defmodule Joken.Signer.Config do
   @spec map_match?(map, map) :: boolean
   def map_match?(map1, map2) do
     map1
-    |> Enum.all?(&value_match?(&1, map2))
+    |> Enum.all?(&key_value_match?(&1, map2))
   end
 
   @doc """
@@ -92,21 +103,21 @@ defmodule Joken.Signer.Config do
     iex>  "b" => "some_other_value",
     iex>  "a" => "my_value_to_test_for"
     iex>  }
-    iex> value_match?({"a", "my_value_to_test_for"}, test_map)
+    iex> key_value_match?({"a", "my_value_to_test_for"}, test_map)
     true
-    iex> value_match?({"b", "my_value_to_test_for"}, test_map)
+    iex> key_value_match?({"b", "my_value_to_test_for"}, test_map)
     false
-    iex> value_match?({"a", "some_other_value"}, test_map)
+    iex> key_value_match?({"a", "some_other_value"}, test_map)
     false
     iex> my_match_fn = fn val -> val === "my_value_to_test_for" end
-    iex> value_match?({"a", my_match_fn }, test_map)
+    iex> key_value_match?({"a", my_match_fn }, test_map)
     true
     iex> my_match_fn = fn val -> val === "some_other_value" end
-    iex> value_match?({"a", my_match_fn }, test_map)
+    iex> key_value_match?({"a", my_match_fn }, test_map)
     false
   """
-  @spec value_match?({binary, any}, map) :: boolean
-  def value_match?({key, test}, map) do
+  @spec key_value_match?({binary, any}, map) :: boolean
+  def key_value_match?({key, test}, map) do
     with value <- Map.get(map, to_string(key)) do
       !!test_equality(test, value)
     end
@@ -131,7 +142,7 @@ defmodule Joken.Signer.Config do
     false
       
   """
-  @spec test_equality(function | binary | number, binary | number) :: any
+  @spec test_equality(value_or_verifier, json_value) :: any
   def test_equality(func, value2) when is_function(func), do: func.(value2)
   def test_equality(value1, value2), do: value1 === value2
 
