@@ -29,8 +29,8 @@ defmodule Joken.Signer.Config do
 
   def config_match?(%{headers: headers, claims: claims}, jwt) do
     with %{
-           "headers" => jwt_headers,
-           "claims" => jwt_claims
+           headers: jwt_headers,
+           claims: jwt_claims
          } <- peek_headers_and_claims(jwt) do
       map_match?(claims, jwt_claims) && map_match?(headers, jwt_headers)
     end
@@ -59,6 +59,7 @@ defmodule Joken.Signer.Config do
     iex> map_match?(%{ "c" => my_match_fn3 }, %{ "a" => "b" })
     false
   """
+  @spec map_match?(map, map) :: boolean
   def map_match?(map1, map2) do
     map1
     |> Enum.all?(&value_match?(&1, map2))
