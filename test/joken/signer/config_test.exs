@@ -11,6 +11,7 @@ defmodule Joken.Signer.Config.Test do
   @secret "my_secret"
 
   def signer(_), do: Joken.hs256(@secret)
+  def signer(), do: Joken.hs256(@secret)
 
   def valid_config_list() do
     [
@@ -27,6 +28,13 @@ defmodule Joken.Signer.Config.Test do
     ]
   end
 
+  test "get returns a signer when given a matching token" do
+    with config_list <- valid_config_list(),
+         result <- get(config_list, @valid_token) do
+      assert result === signer()
+    end
+  end
+
   test "find returns a config when given a matching token" do
     with config_list <- valid_config_list(),
          first_config <- Enum.at(config_list, 0),
@@ -34,6 +42,13 @@ defmodule Joken.Signer.Config.Test do
          result <- find(config_list, @valid_token) do
       assert result === first_config
       assert result !== second_config
+    end
+  end
+
+  test "find returns nil when given a token that cant be matched against any config" do
+    with config_list <- valid_config_list(),
+         result <- find(config_list, @near_blank_token) do
+      assert result === nil
     end
   end
 
