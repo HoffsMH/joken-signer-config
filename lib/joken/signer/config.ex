@@ -39,7 +39,21 @@ defmodule Joken.Signer.Config do
   end
 
   @doc """
-  Reports if a given config is a match for a given jwt token string
+  Reports if a given config is a match for a map of jwt headers and claims.
+  If every key value pair in the headers and claims of the config match the same key values
+  in the jwt headers and claims this returns true
+
+  ### Examples
+    iex> jwt = %{
+    iex>  headers: %{},
+    iex>  claims: %{ "a" => "ok"}
+    iex> }
+    iex> config_match?(%{ headers: %{}, claims: %{ "a" => "ok"}}, jwt)
+    true
+    iex> config_match?(%{ headers: %{"a" => "ok"}, claims: %{ "a" => "ok"}}, jwt)
+    false
+    iex> config_match?(%{ headers: %{}, claims: %{ "a" => "fail"}}, jwt)
+    false
   """
   @spec config_match?(
           %{
