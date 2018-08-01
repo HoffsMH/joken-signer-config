@@ -46,8 +46,19 @@ Lets say you are building an app that needs to verify a number of jwt tokens fro
     # }
 
   ```
+  We can call on `&Joken.Signer.Config.find/2` to find the correct config
 
-  We can call on `Joken.Signer.Config` to find the correct signer
+  ```elixir
+    Joken.Signer.Config.find(my_list_of_configs, my_token)
+
+    %Joken.Signer.Config{
+      claims: %{iss: "some_issuer"},
+      headers: %{alg: "HS256"},
+      signer: #Function<6.127694169/1 in :erl_eval.expr/5>
+    }
+  ```
+
+  Or we can call on `&Joken.Signer.Config.get/2` to get the correct signer
 
   ```elixir
     Joken.Signer.Config.get(my_list_of_configs, my_token)
