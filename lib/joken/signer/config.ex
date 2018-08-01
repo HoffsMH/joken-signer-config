@@ -9,6 +9,7 @@ defmodule Joken.Signer.Config do
   @type token :: Joken.Token.t()
   @type claims :: %{}
   @type headers :: %{}
+  @type token_string :: String.t()
 
   @type t :: %__MODULE__{
           claims: claims,
@@ -22,22 +23,40 @@ defmodule Joken.Signer.Config do
     :signer
   ]
 
-  def find_config_by(config_list, jwt) do
-    config_list
-    |> Enum.find(&config_match?(&1, jwt))
-  end
+  def find_config_by([], _), do: nil
 
-  def config_match?(%{headers: headers, claims: claims}, jwt) do
-    with %{
-           headers: jwt_headers,
-           claims: jwt_claims
-         } <- peek_headers_and_claims(jwt) do
-      map_match?(claims, jwt_claims) && map_match?(headers, jwt_headers)
+  def find_config_by(config_list, jwt_binary) when is_binary(jwt_binary),
+    do: find_config_by(config_list, peek_headers_and_claims(jwt_binary))
+
+  def find_config_by([config | remaining_configs], headers_and_claims) do
+    if config_match?(config, headers_and_claims) do
+      config
+    else
+      find_config_by(remaining_configs, headers_and_claims)
     end
   end
 
   @doc """
-  Lets you know if all of the key value pairs in map 1 are present in map 2, but
+  Reports if a given config is a match for a given jwt token string
+  """
+  @spec config_match?(%{}, %{}) :: boolean
+  def config_match?(config, jwt) do
+    with %{
+           claims: config_claims,
+           headers: config_headers
+         } <- config,
+         %{
+           claims: jwt_claims,
+           headers: jwt_headers
+         } <- jwt,
+         headers_match? <- map_match?(config_headers, jwt_headers),
+         claims_match? <- map_match?(config_claims, jwt_claims) do
+      headers_match? && claims_match?
+    end
+  end
+
+  @doc """
+  Reports if all of the key value pairs in map 1 are present in map 2, but
   not that all the key value pairs  in map 2 are present in map 1
 
   ### Examples
