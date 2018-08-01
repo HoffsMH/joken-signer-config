@@ -8,17 +8,20 @@ The most common use case will probably be in letting your app know which secrets
 
 Lets say you are building an app that needs to verify a number of jwt tokens from various issuers. Each issuer might need a different algorithm and secret. Or maybe you are willing to accept a limited set of algorithms from a specific issuer that you might not be willing to do with another.
 
-Perhaps certain types of claims require more stringent verification.
-
 ### What it does
 
   Given a list of `%Joken.Signer.Config`s that look like this
   ```elixir
-      [
+      my_list_of_configs = [
         %Joken.Signer.Config{
           headers: %{ alg: "HS256" },
           claims: %{ iss: "some_issuer" },
-          signer: fn _ -> Joken.h256("my_secret")
+          signer: fn _ -> Joken.hs256("my_secret") end
+        },
+        %Joken.Signer.Config{
+          headers: %{ alg: "HS256" },
+          claims: %{ iss: "some_other_issuer" },
+          signer: fn _ -> Joken.hs512("some_other_secret") end
         },
         #...more Signer Configs...
       ]
@@ -44,29 +47,16 @@ Perhaps certain types of claims require more stringent verification.
 
   ```
 
-  We can attach the correct signer 
+  We can call on `Joken.Signer.Config` to find the correct signer
 
   ```elixir
+    Joken.Signer.Config.get(my_list_of_configs, my_token)
 
+    %Joken.Signer{
+      jwk: %{"k" => "bXlfc2VjcmV0", "kty" => "oct"},
+      jws: %{"alg" => "HS256"}
+    }
   ```
-
-  ```elixir
-      [
-        %Joken.Signer.Config{
-          claims: %{ iss: "issuer_1" }
-          headers: %{ alg: "ES512" },
-          signer: &gen_signer/1
-        },
-        %Joken.Signer.Config{
-          claims: %{ iss: "some_issuer_2" }
-          headers: %{ alg: "HS256" },
-          signer: fn _ -> Joken.h256("my_secret")
-        },
-        #...more Signer Configs...
-      ]
-  ```
-
-### How it does it
 
 ## Installation
 

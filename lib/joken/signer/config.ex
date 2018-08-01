@@ -25,16 +25,22 @@ defmodule Joken.Signer.Config do
     :signer
   ]
 
-  def find_config_by([], _), do: nil
+  def get(config_list, jwt_binary) do
+    with config <- find(config_list, jwt_binary) do
+      config.signer.(jwt_binary)
+    end
+  end
 
-  def find_config_by(config_list, jwt_binary) when is_binary(jwt_binary),
-    do: find_config_by(config_list, peek_headers_and_claims(jwt_binary))
+  def find([], _), do: nil
 
-  def find_config_by([config | remaining_configs], headers_and_claims) do
+  def find(config_list, jwt_binary) when is_binary(jwt_binary),
+    do: find(config_list, peek_headers_and_claims(jwt_binary))
+
+  def find([config | remaining_configs], headers_and_claims) do
     if config_match?(config, headers_and_claims) do
       config
     else
-      find_config_by(remaining_configs, headers_and_claims)
+      find(remaining_configs, headers_and_claims)
     end
   end
 

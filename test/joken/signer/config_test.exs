@@ -27,11 +27,11 @@ defmodule Joken.Signer.Config.Test do
     ]
   end
 
-  test "find_config_by returns a config when given a matching token" do
+  test "find returns a config when given a matching token" do
     with config_list <- valid_config_list(),
          first_config <- Enum.at(config_list, 0),
          second_config <- Enum.at(config_list, 1),
-         result <- find_config_by(config_list, @valid_token) do
+         result <- find(config_list, @valid_token) do
       assert result === first_config
       assert result !== second_config
     end
