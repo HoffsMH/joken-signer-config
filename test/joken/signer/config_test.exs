@@ -45,6 +45,13 @@ defmodule Joken.Signer.Config.Test do
     end
   end
 
+  test "find returns nil when given a token and a blank  config list" do
+    with config_list <- [],
+         result <- find(config_list, @valid_token) do
+      assert result === nil
+    end
+  end
+
   test "find returns nil when given a token that cant be matched against any config" do
     with config_list <- valid_config_list(),
          result <- find(config_list, @near_blank_token) do
